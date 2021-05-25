@@ -64,7 +64,8 @@
     safety_pos_margin:=0.15
     safety_k_position:=20
     use_fake_hardware:=false
-    fake_sensor_commands:=false"
+    fake_sensor_commands:=false
+    controllers_file"
   >
     <!-- Load configuration data from the provided .yaml files -->
     <xacro:read_model_data
@@ -90,13 +91,17 @@
       input_recipe_filename="$(arg input_recipe_filename)"
       tf_prefix=""
       hash_kinematics="${kinematics_hash}"
-      robot_ip="$(arg robot_ip)" />
+      robot_ip="$(arg robot_ip)"
+      controllers_file="$(arg controllers_file)" />
 
     <!-- Add URDF transmission elements (for ros_control) -->
     <!--<xacro:ur_arm_transmission prefix="${prefix}" hw_interface="${transmission_hw_interface}" />-->
     <!-- Placeholder for ros2_control transmission which don't yet exist -->
 
     <!-- links -  main serial chain -->
+    <xacro:if value="${use_fake_hardware == 'gazebo'}">
+      <link name="world"/>
+    </xacro:if>
     <link name="${prefix}base_link"/>
     <link name="${prefix}base_link_inertia">
       <visual>
@@ -240,6 +245,14 @@
     </link>
 
     <!-- joints - main serial chain -->
+    <xacro:if value="${use_fake_hardware == 'gazebo'}">
+      <joint name="world_to_base" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 1"/>
+        <parent link="world"/>
+        <child link="${prefix}base_link"/>
+      </joint> 
+    </xacro:if>
+      
     <joint name="${prefix}base_link-base_link_inertia" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}base_link_inertia" />

@@ -5,16 +5,19 @@
     use_fake_hardware:=false fake_sensor_commands:=false
     script_filename output_recipe_filename
     input_recipe_filename tf_prefix
-    hash_kinematics robot_ip">
+    hash_kinematics robot_ip controllers_file">
 
     <ros2_control name="${name}" type="system">
       <hardware>
-        <xacro:if value="${use_fake_hardware}">
+        <xacro:if value="${use_fake_hardware == 'gazebo'}">
+          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${use_fake_hardware == True}">
           <plugin>fake_components/GenericSystem</plugin>
           <param name="fake_sensor_commands">${fake_sensor_commands}</param>
           <param name="state_following_offset">0.0</param>
         </xacro:if>
-        <xacro:unless value="${use_fake_hardware}">
+        <xacro:if value="${use_fake_hardware == False}">
           <plugin>ur_robot_driver/URPositionHardwareInterface</plugin>
           <param name="robot_ip">${robot_ip}</param>
           <param name="script_filename">${script_filename}</param>
@@ -37,7 +40,7 @@
           <param name="tool_tx_idle_chars">3.5</param>
           <param name="tool_device_name">/tmp/ttyUR</param>
           <param name="tool_tcp_port">54321</param>
-        </xacro:unless>
+        </xacro:if>
       </hardware>
       <joint name="${prefix}shoulder_pan_joint">
         <command_interface name="position">
@@ -241,6 +244,13 @@
       </joint>
 
     </ros2_control>
+    <gazebo>
+      <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+        <robot_param>robot_description</robot_param>
+        <robot_param_node>robot_state_publisher</robot_param_node>
+        <parameters>$(arg controllers_file)</parameters>
+      </plugin>
+    </gazebo>
   </xacro:macro>
 
 </robot>
