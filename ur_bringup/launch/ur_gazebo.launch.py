@@ -143,7 +143,6 @@ def generate_launch_description():
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
     fake_sensor_commands = LaunchConfiguration("fake_sensor_commands")
     robot_controller = LaunchConfiguration("robot_controller")
-    launch_rviz = LaunchConfiguration("launch_rviz")
 
     joint_limit_params = PathJoinSubstitution(
         [FindPackageShare(description_package), "config", ur_type, "joint_limits.yaml"]
@@ -230,16 +229,6 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
 
-    control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[robot_description, robot_controllers],
-        output={
-            "stdout": "screen",
-            "stderr": "screen",
-        },
-    )
-
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -296,15 +285,14 @@ def generate_launch_description():
                         output='screen')
 
     nodes_to_start = [
-        control_node,
+        gazebo,
+        spawn_entity,
         robot_state_publisher_node,
         joint_state_broadcaster_spawner,
         io_and_status_controller_spawner,
         speed_scaling_state_broadcaster_spawner,
         force_torque_sensor_broadcaster_spawner,
         robot_controller_spawner,
-        gazebo,
-        spawn_entity,
     ]
     
     return LaunchDescription(declared_arguments + nodes_to_start)
