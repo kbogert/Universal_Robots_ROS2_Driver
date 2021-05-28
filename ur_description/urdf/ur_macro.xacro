@@ -99,9 +99,6 @@
     <!-- Placeholder for ros2_control transmission which don't yet exist -->
 
     <!-- links -  main serial chain -->
-    <xacro:if value="${use_fake_hardware == 'gazebo'}">
-      <link name="world"/>
-    </xacro:if>
     <link name="${prefix}base_link"/>
     <link name="${prefix}base_link_inertia">
       <visual>
@@ -244,15 +241,7 @@
       </xacro:cylinder_inertial>
     </link>
 
-    <!-- joints - main serial chain -->
-    <xacro:if value="${use_fake_hardware == 'gazebo'}">
-      <joint name="world_to_base" type="fixed">
-        <origin rpy="0 0 0" xyz="0 0 1"/>
-        <parent link="world"/>
-        <child link="${prefix}base_link"/>
-      </joint> 
-    </xacro:if>
-      
+    <!-- joints - main serial chain -->      
     <joint name="${prefix}base_link-base_link_inertia" type="fixed">
       <parent link="${prefix}base_link" />
       <child link="${prefix}base_link_inertia" />
